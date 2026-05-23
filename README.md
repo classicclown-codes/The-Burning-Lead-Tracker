@@ -14,3 +14,28 @@ npm run dev
 ```
 
 The app uses Supabase email/password auth and row-level security so each user only sees their own leads.
+
+## Public Intake Form
+
+Leads can submit themselves at:
+
+```text
+/intake
+```
+
+The page calls the Supabase Edge Function in `supabase/functions/create-lead`. The function uses the service role key server-side and inserts new submissions under one owner account, so table RLS stays locked down.
+
+Set these Supabase function secrets before deploying the function:
+
+```bash
+supabase secrets set BURNING_LEAD_OWNER_ID=your_auth_user_uuid
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+Then deploy:
+
+```bash
+supabase functions deploy create-lead --no-verify-jwt
+```
+
+You can find your owner user UUID in Supabase under `Authentication` -> `Users`.

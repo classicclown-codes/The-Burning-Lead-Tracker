@@ -37,6 +37,17 @@ const emptyLead = {
   goal: '',
 };
 
+const intakeInitialState = {
+  full_name: '',
+  whatsapp: '',
+  business_type: '',
+  city: '',
+  monthly_revenue: '',
+  monthly_ad_spend: '',
+  main_objection: '',
+  goal: '',
+};
+
 const badgeStyles = {
   New: 'bg-emerald-50 text-brand thin-border border-emerald-100',
   Active: 'bg-emerald-50 text-brand thin-border border-emerald-100',
@@ -374,6 +385,97 @@ function FormInput({ label, value, onChange, required, type = 'text' }) {
       <span className="text-sm font-medium">{label}</span>
       <input className="mt-2 w-full rounded-md border-0 thin-border px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand/20" type={type} value={value || ''} onChange={(event) => onChange(event.target.value)} required={required} />
     </label>
+  );
+}
+
+function IntakePage() {
+  const [form, setForm] = useState(intakeInitialState);
+  const [status, setStatus] = useState('idle');
+  const [message, setMessage] = useState('');
+
+  const source = new URLSearchParams(window.location.search).get('source') || 'WhatsApp ad DM';
+
+  function updateField(field, value) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  async function submit(event) {
+    event.preventDefault();
+    setStatus('loading');
+    setMessage('');
+
+    if (!isSupabaseConfigured) {
+      setStatus('error');
+      setMessage('Lead intake is not configured yet.');
+      return;
+    }
+
+    const { error } = await supabase.functions.invoke('create-lead', {
+      body: { ...form, source },
+    });
+
+    if (error) {
+      setStatus('error');
+      setMessage(error.message || 'Something went wrong. Please message us on WhatsApp.');
+      return;
+    }
+
+    setStatus('success');
+    setMessage('Done. Your details are in. Go back to WhatsApp and send "submitted" so we can continue.');
+    setForm(intakeInitialState);
+  }
+
+  return (
+    <main className="min-h-screen bg-[#F7F8F7] px-4 py-5 sm:px-6 sm:py-8">
+      <section className="mx-auto max-w-2xl">
+        <div className="mb-5 rounded-lg bg-white p-5 thin-border">
+          <p className="text-sm font-bold text-brand">The Burning Lead</p>
+          <h1 className="mt-2 text-3xl font-extrabold tracking-tight">Quick business check</h1>
+          <p className="mt-3 text-sm leading-6 text-gray-600">
+            Fill this in before we continue on WhatsApp. It helps us see if the system is actually right for your business.
+          </p>
+        </div>
+
+        {status === 'success' ? (
+          <div className="rounded-lg bg-white p-6 thin-border">
+            <div className="grid h-12 w-12 place-items-center rounded-full bg-emerald-50 text-brand thin-border">
+              <Check size={22} />
+            </div>
+            <h2 className="mt-4 text-2xl font-bold">Submitted</h2>
+            <p className="mt-3 text-sm leading-6 text-gray-600">{message}</p>
+            <button className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand px-4 py-3 text-sm font-bold text-white sm:w-auto" onClick={() => window.history.back()}>
+              <MessageCircle size={18} />
+              Back to WhatsApp
+            </button>
+          </div>
+        ) : (
+          <form className="space-y-4 rounded-lg bg-white p-5 thin-border" onSubmit={submit}>
+            <FormInput label="Full name" value={form.full_name} onChange={(value) => updateField('full_name', value)} required />
+            <FormInput label="WhatsApp number" value={form.whatsapp} onChange={(value) => updateField('whatsapp', value)} required />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormInput label="Business type" value={form.business_type} onChange={(value) => updateField('business_type', value)} required />
+              <FormInput label="City" value={form.city} onChange={(value) => updateField('city', value)} />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormInput label="Monthly revenue" value={form.monthly_revenue} onChange={(value) => updateField('monthly_revenue', value)} />
+              <FormInput label="Monthly ad spend" value={form.monthly_ad_spend} onChange={(value) => updateField('monthly_ad_spend', value)} />
+            </div>
+            <label className="block">
+              <span className="text-sm font-medium">Biggest problem getting paying clients</span>
+              <textarea className="mt-2 min-h-28 w-full resize-none rounded-md border-0 thin-border px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand/20" value={form.main_objection} onChange={(event) => updateField('main_objection', event.target.value)} required />
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium">What do you want to achieve in 90 days?</span>
+              <textarea className="mt-2 min-h-28 w-full resize-none rounded-md border-0 thin-border px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand/20" value={form.goal} onChange={(event) => updateField('goal', event.target.value)} required />
+            </label>
+            {message && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700 thin-border">{message}</p>}
+            <button className="w-full rounded-md bg-brand px-4 py-3.5 text-sm font-bold text-white disabled:opacity-60" disabled={status === 'loading'}>
+              {status === 'loading' ? 'Submitting...' : 'Submit details'}
+            </button>
+          </form>
+        )}
+      </section>
+    </main>
   );
 }
 
@@ -853,9 +955,10 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [ready, setReady] = useState(!isSupabaseConfigured);
   const [bootError, setBootError] = useState('');
+  const isIntakeRoute = window.location.pathname === '/intake';
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured || isIntakeRoute) return;
     let mounted = true;
 
     supabase.auth
@@ -880,7 +983,11 @@ export default function App() {
       mounted = false;
       data?.subscription?.unsubscribe();
     };
-  }, []);
+  }, [isIntakeRoute]);
+
+  if (isIntakeRoute) {
+    return <IntakePage />;
+  }
 
   if (!ready) {
     return <main className="grid min-h-screen place-items-center bg-white text-sm text-gray-500">Loading...</main>;
