@@ -58,31 +58,56 @@ const badgeStyles = {
   Lost: 'bg-gray-100 text-gray-600 thin-border border-gray-200',
 };
 
+const INTAKE_URL = 'https://the-burning-lead-tracker.vercel.app/intake';
+
 const WHATSAPP_SCRIPTS = [
   {
-    id: 'opener',
-    label: 'Copy opener',
+    id: 'send_form',
+    label: 'Copy form link',
     stages: ['new_dms'],
-    getText: (lead) => `Hey ${lead.full_name || '[Name]'} - thanks for reaching out, glad the ad caught your attention.
+    getText: (lead) => `Hey ${lead.full_name || '[Name]'} - before I check if this is a fit, fill this quick 60-second form:
 
-Before I tell you anything about what we do, I want to make sure this is actually right for your business - not waste your time or mine.
+${INTAKE_URL}
 
-Can I ask you 2 quick questions?`,
+It helps me understand your business so I'm not wasting your time on the call.
+
+Once done, reply "submitted" here and I'll take a look.`,
   },
   {
-    id: 'qualify',
-    label: 'Copy qualify',
+    id: 'form_nudge',
+    label: 'Copy form nudge',
+    stages: ['new_dms'],
+    getText: (lead) => `Hey ${lead.full_name || '[Name]'} - just making sure you got the link. Only takes 60 seconds. Once you're done just reply "submitted" and I'll review your details.`,
+  },
+  {
+    id: 'form_review',
+    label: 'Copy form review',
     stages: ['new_dms', 'qualifying'],
-    getText: () => `Perfect.
+    getText: (lead) => `Got it ${lead.full_name || '[Name]'} - I've gone through your details.
 
-1. What type of business do you run and who are your customers?
-2. What's your biggest frustration right now when it comes to getting paying clients?`,
+You're running a ${lead.business_type || '[business type]'}, currently doing ${lead.monthly_revenue || '[monthly revenue]'}, spending ${lead.monthly_ad_spend || '[monthly ad spend]'} on ads, and the problem is ${lead.main_objection || '[their stated problem]'}.
+
+That's a pattern I recognise immediately. The right people exist in your market - they're just not seeing you yet. That's exactly what The Burning Lead system fixes.
+
+I want to show you specifically how it would work for your business. Let's get 15 minutes on a call.`,
+  },
+  {
+    id: 'booking_ask',
+    label: 'Copy booking ask',
+    stages: ['qualifying'],
+    getText: () => `I have a few spots open this week. Are you available Tuesday or Thursday?`,
   },
   {
     id: 'follow_up',
     label: 'Copy follow-up',
     stages: ['qualifying', 'call_booked', 'follow_up'],
-    getText: (lead) => `Hey ${lead.full_name || '[Name]'} - still here if you want to talk. Just didn't want to leave you hanging.`,
+    getText: (lead) => `Hey ${lead.full_name || '[Name]'} - still here whenever you're ready. No rush.`,
+  },
+  {
+    id: 'fresh_result',
+    label: 'Copy fresh result',
+    stages: ['qualifying', 'follow_up'],
+    getText: (lead) => `Quick one ${lead.full_name || '[Name]'} - I was reviewing a campaign for a ${lead.business_type || '[their business type]'} this week and got a result I thought you'd want to hear about. Want me to share it?`,
   },
   {
     id: 'call_reminder',
@@ -121,9 +146,56 @@ I have one spot open this week. Are you ready to move forward?`,
     stages: ['closed', 'follow_up'],
     getText: (lead) => `${lead.full_name || '[Name]'}, I won't keep following up after this - I respect your time.
 
-But I want to be honest: what you described earlier is a real problem with a real fix. Most business owners stay stuck on it for years when they don't have to.
+But I'll be honest: what you described in the form is a real problem with a real fix. Most business owners stay stuck on it for years when they don't have to.
 
-If the timing is ever right, I'm here. The door is open.`,
+If the timing is ever right, the door is open.`,
+  },
+];
+
+const CALL_GUIDE_SCRIPTS = [
+  {
+    id: 'call_opener',
+    label: 'Copy call opener',
+    getText: (lead) => `${lead.full_name || '[Name]'}, good to have you on. I went through what you shared in the form before this call - you mentioned ${lead.main_objection || '[their stated problem]'}. I want to make sure I fully understand that before we go any further. Does that still feel like the core issue?`,
+  },
+  {
+    id: 'diagnose',
+    label: 'Copy diagnose prompts',
+    getText: (lead) => `You're spending ${lead.monthly_ad_spend || '[monthly ad spend]'} on ads every month, and the people who actually pay aren't showing up.
+
+What do you think that's been costing you - in actual naira, every month this continues?
+
+How long has this been going on?
+
+Have you tried to fix it before? What happened?`,
+  },
+  {
+    id: 'consequence',
+    label: 'Copy consequence',
+    getText: (lead) => `You shared in the form that your goal is ${lead.goal || '[their 90-day goal]'}.
+
+If nothing changes over the next 6 months - same ads, same results - where does that leave you and that goal?`,
+  },
+  {
+    id: 'three_x',
+    label: 'Copy 3x frame',
+    getText: () => `What if you could get at least 3x back on every naira you put into ads - and the right buyers started coming to you instead of you chasing them?
+
+And you could do that without spending your whole day trying to figure out what to post?`,
+  },
+  {
+    id: 'offer',
+    label: 'Copy offer frame',
+    getText: (lead) => `Here's what working together looks like.
+
+We build your Burning Lead system over 90 days - we identify exactly who your Burning Lead is, build the content and ads that speak only to them, and optimise until your DMs are full of people ready to pay.
+
+Investment is [X]. Based on your numbers, you'd need [Z] new clients to 3x that. We've done it. Let's do it for you.`,
+  },
+  {
+    id: 'commitment',
+    label: 'Copy commitment ask',
+    getText: (lead) => `Based on everything - your goal of ${lead.goal || '[their 90-day goal]'}, the system, and what we've done for others - are you ready to move forward and get this built for your business?`,
   },
 ];
 
@@ -581,9 +653,38 @@ function DetailPanel({ lead, onClose, onUpdate, onMove, onAddNote, onDelete }) {
                   {copied === script.id ? <ClipboardCheck size={16} /> : <Copy size={16} />}
                   <span>{script.label}</span>
                 </button>
-              ))}
+            ))}
           </div>
         </section>
+
+        {['call_booked', 'follow_up', 'closed'].includes(lead.stage) && (
+          <section className="mt-8 rounded-lg bg-[#F7F8F7] p-4 thin-border">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="font-bold">Call guide</h3>
+                <p className="mt-1 text-xs text-gray-500">Use the form data. Do not ask what the CRM already knows.</p>
+              </div>
+              <CalendarClock className="text-brand" size={18} />
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {CALL_GUIDE_SCRIPTS.map((script) => (
+                <button
+                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold thin-border ${copied === script.id ? 'border-brand bg-emerald-50 text-brand' : 'text-ink'}`}
+                  key={script.id}
+                  onClick={() => copyScript(script)}
+                >
+                  {copied === script.id ? <ClipboardCheck size={16} /> : <Copy size={16} />}
+                  <span>{script.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 grid gap-2 text-sm text-gray-600">
+              <p><span className="font-semibold text-ink">Promise:</span> 3x return, then over-deliver.</p>
+              <p><span className="font-semibold text-ink">Pain stack:</span> money, time, emotion, consequence.</p>
+              <p><span className="font-semibold text-ink">Close:</span> ask once, then let the silence work.</p>
+            </div>
+          </section>
+        )}
 
         <section className="mt-8">
           <div className="mb-3 flex items-center justify-between">
