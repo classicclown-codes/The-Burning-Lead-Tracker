@@ -356,11 +356,11 @@ function AuthScreen() {
 
 function StatCard({ label, value, sub }) {
   return (
-    <div className="min-w-0 rounded-lg bg-white px-4 py-4 thin-border">
+    <div className="min-w-0 rounded-lg bg-white px-3 py-3 thin-border sm:px-4 sm:py-4">
       <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</p>
-      <div className="mt-2 flex items-end gap-2">
-        <p className="text-2xl font-bold">{value}</p>
-        {sub && <p className="pb-1 text-sm text-gray-500">{sub}</p>}
+      <div className="mt-2 flex min-w-0 flex-wrap items-end gap-x-2 gap-y-1">
+        <p className="text-xl font-bold sm:text-2xl">{value}</p>
+        {sub && <p className="pb-0.5 text-xs text-gray-500 sm:text-sm">{sub}</p>}
       </div>
     </div>
   );
@@ -437,10 +437,10 @@ function AddLeadModal({ onClose, onCreate }) {
 
 function Modal({ title, children, onClose }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/20 px-4 py-6">
-      <section className="max-h-[92vh] w-full max-w-xl overflow-auto rounded-lg bg-white p-5 shadow-panel">
+    <div className="fixed inset-0 z-50 grid place-items-end bg-black/20 px-0 py-0 sm:place-items-center sm:px-4 sm:py-6">
+      <section className="max-h-[96vh] w-full max-w-xl overflow-auto rounded-t-lg bg-white p-4 shadow-panel sm:max-h-[92vh] sm:rounded-lg sm:p-5">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold">{title}</h2>
+          <h2 className="min-w-0 pr-3 text-lg font-bold">{title}</h2>
           <button className="grid h-9 w-9 place-items-center rounded-md thin-border" onClick={onClose} aria-label="Close">
             <X size={18} />
           </button>
@@ -500,9 +500,9 @@ function IntakePage() {
   return (
     <main className="min-h-screen bg-[#F7F8F7] px-4 py-5 sm:px-6 sm:py-8">
       <section className="mx-auto max-w-2xl">
-        <div className="mb-5 rounded-lg bg-white p-5 thin-border">
+        <div className="mb-4 rounded-lg bg-white p-4 thin-border sm:mb-5 sm:p-5">
           <p className="text-sm font-bold text-brand">The Burning Lead</p>
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight">Quick business check</h1>
+          <h1 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">Quick business check</h1>
           <p className="mt-3 text-sm leading-6 text-gray-600">
             Fill this in before we continue on WhatsApp. It helps us see if the system is actually right for your business.
           </p>
@@ -521,7 +521,7 @@ function IntakePage() {
             </button>
           </div>
         ) : (
-          <form className="space-y-4 rounded-lg bg-white p-5 thin-border" onSubmit={submit}>
+          <form className="space-y-4 rounded-lg bg-white p-4 thin-border sm:p-5" onSubmit={submit}>
             <FormInput label="Full name" value={form.full_name} onChange={(value) => updateField('full_name', value)} required />
             <FormInput label="WhatsApp number" value={form.whatsapp} onChange={(value) => updateField('whatsapp', value)} required />
             <div className="grid gap-4 sm:grid-cols-2">
@@ -586,18 +586,18 @@ function DetailPanel({ lead, onClose, onUpdate, onMove, onAddNote, onDelete }) {
   }
 
   return (
-    <aside className="fixed inset-y-0 right-0 z-40 flex w-full max-w-xl flex-col bg-white shadow-panel sm:border-l sm:border-line">
-      <div className="flex items-center justify-between border-b border-line px-5 py-4">
-        <div>
+    <aside className="fixed inset-0 z-40 flex w-full flex-col bg-white shadow-panel sm:inset-y-0 sm:left-auto sm:right-0 sm:max-w-xl sm:border-l sm:border-line">
+      <div className="flex items-center justify-between border-b border-line px-4 py-3 sm:px-5 sm:py-4">
+        <div className="min-w-0 pr-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-brand">{STAGE_LABELS[lead.stage]}</p>
-          <h2 className="text-xl font-bold">{lead.full_name}</h2>
+          <h2 className="truncate text-lg font-bold sm:text-xl">{lead.full_name}</h2>
         </div>
-        <button className="grid h-9 w-9 place-items-center rounded-md thin-border" onClick={onClose} aria-label="Close">
+        <button className="grid h-10 w-10 shrink-0 place-items-center rounded-md thin-border" onClick={onClose} aria-label="Close">
           <X size={18} />
         </button>
       </div>
 
-      <div className="scrollbar-soft flex-1 overflow-auto px-5 py-5">
+      <div className="scrollbar-soft flex-1 overflow-auto px-4 py-4 sm:px-5 sm:py-5">
         <div className="mb-6 grid grid-cols-5 gap-1">
           {STAGES.map((stage, index) => (
             <div key={stage.id} className={`h-2 rounded-full ${index <= currentIndex ? 'bg-brand' : 'bg-gray-200'}`} title={stage.label} />
@@ -646,7 +646,7 @@ function DetailPanel({ lead, onClose, onUpdate, onMove, onAddNote, onDelete }) {
               .filter((script) => script.stages.includes(lead.stage))
               .map((script) => (
                 <button
-                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold thin-border ${copied === script.id ? 'border-brand bg-emerald-50 text-brand' : 'bg-white text-ink'}`}
+                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-3 py-2 text-center text-sm font-semibold thin-border ${copied === script.id ? 'border-brand bg-emerald-50 text-brand' : 'bg-white text-ink'}`}
                   key={script.id}
                   onClick={() => copyScript(script)}
                 >
@@ -669,7 +669,7 @@ function DetailPanel({ lead, onClose, onUpdate, onMove, onAddNote, onDelete }) {
             <div className="grid gap-2 sm:grid-cols-2">
               {CALL_GUIDE_SCRIPTS.map((script) => (
                 <button
-                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold thin-border ${copied === script.id ? 'border-brand bg-emerald-50 text-brand' : 'text-ink'}`}
+                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-center text-sm font-semibold thin-border ${copied === script.id ? 'border-brand bg-emerald-50 text-brand' : 'text-ink'}`}
                   key={script.id}
                   onClick={() => copyScript(script)}
                 >
@@ -708,7 +708,7 @@ function DetailPanel({ lead, onClose, onUpdate, onMove, onAddNote, onDelete }) {
         </section>
       </div>
 
-      <div className="border-t border-line p-4">
+      <div className="border-t border-line bg-white p-3 sm:p-4">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {lead.stage !== 'closed' && <ActionButton icon={ChevronRight} label="Move next" onClick={() => onMove(lead)} primary />}
           <ActionButton icon={Clock3} label="Log follow-up" onClick={() => onUpdate(lead.id, { last_contact: new Date().toISOString() })} />
@@ -733,7 +733,7 @@ function Info({ label, value }) {
 
 function ActionButton({ icon: Icon, label, onClick, primary, danger }) {
   return (
-    <button className={`inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold thin-border ${primary ? 'border-brand bg-brand text-white' : danger ? 'bg-red-50 text-red-700' : 'bg-white text-ink'}`} onClick={onClick}>
+    <button className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md px-2.5 py-2 text-center text-xs font-semibold thin-border sm:gap-2 sm:px-3 sm:text-sm ${primary ? 'border-brand bg-brand text-white' : danger ? 'bg-red-50 text-red-700' : 'bg-white text-ink'}`} onClick={onClick}>
       <Icon size={16} />
       <span>{label}</span>
     </button>
@@ -935,17 +935,17 @@ function Dashboard({ session }) {
   return (
     <main className="min-h-screen bg-[#F7F8F7]">
       <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">Burning Lead Tracker</h1>
+        <div className="mx-auto flex max-w-[1500px] flex-col gap-3 px-3 py-3 sm:px-6 sm:py-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-extrabold tracking-tight sm:text-2xl">Burning Lead Tracker</h1>
             <p className="mt-1 text-sm text-gray-500">WhatsApp DM to closed client pipeline</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button className="inline-flex items-center gap-2 rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-white" onClick={() => setAddOpen(true)}>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+            <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-brand px-3 py-2.5 text-sm font-semibold text-white sm:px-4" onClick={() => setAddOpen(true)}>
               <Plus size={17} />
               Add lead
             </button>
-            <button className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2.5 text-sm font-semibold thin-border" onClick={() => supabase.auth.signOut()}>
+            <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white px-3 py-2.5 text-sm font-semibold thin-border" onClick={() => supabase.auth.signOut()}>
               <LogOut size={16} />
               Sign out
             </button>
@@ -953,21 +953,21 @@ function Dashboard({ session }) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-[1500px] px-3 py-4 sm:px-6 sm:py-6">
         {error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 thin-border">{error}</div>}
-        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
           <StatCard label="Total leads this month" value={stats.total} />
           <StatCard label="Calls booked" value={stats.calls} sub={`${stats.callRate}% conversion`} />
           <StatCard label="Clients closed" value={stats.closed} sub={`${stats.closeRate}% close rate`} />
           <StatCard label="Follow-ups due today" value={stats.due} />
         </section>
 
-        <section className="mt-5 flex flex-col gap-3 rounded-lg bg-white p-3 thin-border md:flex-row">
+        <section className="mt-4 flex flex-col gap-2 rounded-lg bg-white p-2 thin-border sm:mt-5 sm:gap-3 sm:p-3 md:flex-row">
           <label className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input className="w-full rounded-md border-0 bg-[#F7F8F7] py-3 pl-10 pr-3 thin-border outline-none focus:ring-2 focus:ring-brand/20" placeholder="Search name or business type" value={search} onChange={(event) => setSearch(event.target.value)} />
+            <input className="min-h-11 w-full rounded-md border-0 bg-[#F7F8F7] py-3 pl-10 pr-3 text-sm thin-border outline-none focus:ring-2 focus:ring-brand/20 sm:text-base" placeholder="Search name or business type" value={search} onChange={(event) => setSearch(event.target.value)} />
           </label>
-          <select className="rounded-md border-0 bg-[#F7F8F7] px-3 py-3 thin-border outline-none focus:ring-2 focus:ring-brand/20" value={filter} onChange={(event) => setFilter(event.target.value)}>
+          <select className="min-h-11 rounded-md border-0 bg-[#F7F8F7] px-3 py-3 text-sm thin-border outline-none focus:ring-2 focus:ring-brand/20 sm:text-base" value={filter} onChange={(event) => setFilter(event.target.value)}>
             <option value="all">All stages</option>
             {STAGES.map((stage) => <option key={stage.id} value={stage.id}>{stage.label}</option>)}
             <option value="overdue">Overdue only</option>
@@ -975,12 +975,12 @@ function Dashboard({ session }) {
           </select>
         </section>
 
-        <section className="mt-4 flex gap-2 rounded-lg bg-white p-1 thin-border">
-          <button className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-bold ${view === 'pipeline' ? 'bg-brand text-white' : 'text-gray-600'}`} onClick={() => setView('pipeline')}>
+        <section className="mt-3 flex gap-1 rounded-lg bg-white p-1 thin-border sm:mt-4 sm:gap-2">
+          <button className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-bold ${view === 'pipeline' ? 'bg-brand text-white' : 'text-gray-600'}`} onClick={() => setView('pipeline')}>
             <ChevronRight size={16} />
             Pipeline
           </button>
-          <button className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-bold ${view === 'today' ? 'bg-brand text-white' : 'text-gray-600'}`} onClick={() => setView('today')}>
+          <button className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-bold ${view === 'today' ? 'bg-brand text-white' : 'text-gray-600'}`} onClick={() => setView('today')}>
             <ListTodo size={16} />
             Today
             <span className={`rounded-full px-2 py-0.5 text-xs ${view === 'today' ? 'bg-white/20 text-white' : 'bg-[#F7F8F7] text-gray-600 thin-border'}`}>{todayLeads.length}</span>
@@ -1011,7 +1011,7 @@ function Dashboard({ session }) {
                 const count = filteredLeads.filter((lead) => lead.stage === stage.id).length;
                 return (
                   <button
-                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold thin-border ${activeStage === stage.id ? 'border-brand bg-brand text-white' : 'bg-white text-gray-600'}`}
+                    className={`min-h-10 shrink-0 rounded-full px-3 py-2 text-sm font-bold thin-border sm:px-4 ${activeStage === stage.id ? 'border-brand bg-brand text-white' : 'bg-white text-gray-600'}`}
                     key={stage.id}
                     onClick={() => setActiveStage(stage.id)}
                   >
@@ -1022,11 +1022,11 @@ function Dashboard({ session }) {
               })}
             </section>
 
-            <section className="scrollbar-soft mt-4 grid gap-4 pb-4 lg:mt-6 lg:grid-cols-5 lg:overflow-x-auto">
+            <section className="scrollbar-soft mt-4 grid gap-3 pb-4 sm:gap-4 lg:mt-6 lg:grid-cols-5 lg:overflow-x-auto">
             {STAGES.map((stage) => {
               const stageLeads = filteredLeads.filter((lead) => lead.stage === stage.id);
               return (
-                <div className={`min-h-[360px] rounded-lg bg-white p-3 thin-border lg:min-w-[280px] ${activeStage === stage.id ? 'block' : 'hidden lg:block'}`} key={stage.id}>
+                <div className={`min-h-[320px] rounded-lg bg-white p-3 thin-border lg:min-h-[360px] lg:min-w-[280px] ${activeStage === stage.id ? 'block' : 'hidden lg:block'}`} key={stage.id}>
                   <div className="mb-3 flex items-center justify-between">
                     <h2 className="text-sm font-bold">{stage.label}</h2>
                     <span className="rounded-full bg-[#F7F8F7] px-2.5 py-1 text-xs font-bold text-gray-600 thin-border">{stageLeads.length}</span>

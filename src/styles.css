@@ -15,6 +15,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
 }
 
 button,
@@ -22,6 +23,19 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+button,
+span,
+label,
+input,
+textarea,
+select {
+  overflow-wrap: anywhere;
 }
 
 .thin-border {
