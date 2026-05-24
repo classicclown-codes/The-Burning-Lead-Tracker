@@ -22,7 +22,10 @@ Deno.serve(async (request) => {
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const secretKeys = Deno.env.get('SUPABASE_SECRET_KEYS');
+  const serviceRoleKey = secretKeys
+    ? JSON.parse(secretKeys).default
+    : Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   const ownerUserId = Deno.env.get('BURNING_LEAD_OWNER_ID');
 
   if (!supabaseUrl || !serviceRoleKey || !ownerUserId) {
